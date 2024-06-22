@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  web:
+    image: 'gitlab/gitlab-ee:latest'
+    restart: always
+    hostname: 'git.site.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://git.site.com'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+    ports:
+      - '8000:80'
+      - '44300:443'
+      - '2224:22'
+    volumes:
+      - 'gitlab-config:/etc/gitlab'
+      - 'gitlab-logs:/var/log/gitlab'
+      - 'gitlab-data:/var/opt/gitlab'
+
+  redis:
+    image: 'redis:latest'
+    restart: always
+    volumes:
+      - 'redis-data:/var/lib/redis'
+
+  postgres:
+    image: 'postgres:latest'
+    restart: always
+    environment:
+      POSTGRES_DB: gitlabhq_production
+      POSTGRES_USER: gitlab
+      POSTGRES_PASSWORD: change_me
+    volumes:
+      - 'postgres-data:/var/lib/postgresql/data'
+
+volumes:
+  gitlab-config:
+  gitlab-logs:
+  gitlab-data:
+  redis-data:
+  postgres-data:
